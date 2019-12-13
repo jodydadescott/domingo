@@ -123,8 +123,8 @@ RUN go get -u \
     github.com/aporeto-inc/go-bindata/... \
   && gometalinter --install
 
-# RUN echo >> /root/.bashrc
-# RUN echo "git config --global credential.helper cache" >> /root/.bashrc
-# RUN echo "git config --global credential.helper cache --timeout=43200" >> /root/.bashrc
+RUN echo >> /root/.bashrc
+RUN echo 'echo $GITCREDS > ~/.gitcreds' >> /root/.bashrc
+RUN echo "git config --global credential.helper 'store --file ~/.gitcreds' /root/.bashrc" >> /root/.bashrc
 
 WORKDIR $GOPATH

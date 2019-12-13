@@ -1,28 +1,19 @@
 #!/bin/bash
 
-CONTAINER="jodydadescott/domingo-ubi:latest"
+CONTAINER="jodydadescott/domingo:latest"
 
 main() {
   [[ $GOPATH ]] || { err "Please set GOPATH. export GOPATH="; return 2; }
   export PATH=${GOPATH}/bin:$PATH
-  mkdir -p $GOPATH || { err "Unable to create directory $GOPATH"; return 2; }
+  mkdir -p $GOPATH/src || { err "Unable to create directory $GOPATH/src"; return 2; }
   [ -f $GOPATH/workspace_setup ] || {
     echo_workspace_setup > $GOPATH/workspace_setup
     chmod +x $GOPATH/workspace_setup
   }
-  mkdir -p $GOPATH/src
   local docker="docker run"
   docker+=" -v $GOPATH/src:/go/src "
-  [ -f ${HOME}/.gitconfig ] &&  {
-    docker+=" -v ${HOME}/.gitconfig:/root/.gitconfig "
-    local creds=$(git config --global credential.helper | awk '{print $3}')
-    [[ $creds ]] && { 
-      local dname=$(dirname $creds)
-      dname=$(echo $dname)
-      local bcreds=$(basename $creds)
-      dname="${dname//\~/$HOME}"
-      docker+=" -v ${dname}/${bcreds}:/root/${bcreds}"
-    }
+  [ -f ${HOME}/.gitcreds ] && {
+    docker+=" -e GITCREDS=$(<${HOME}/.gitcreds)"
   }
   docker+=" -it $CONTAINER bash "
   # err "Running->$docker"
