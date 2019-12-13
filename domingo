@@ -5,6 +5,7 @@ CONTAINER="jodydadescott/domingo-ubi:latest"
 main() {
   [[ $GOPATH ]] || { err "Please set GOPATH. export GOPATH="; return 2; }
   export PATH=${GOPATH}/bin:$PATH
+  mkdir -p $GOPATH || { err "Unable to create directory $GOPATH"; return 2; }
   [ -f $GOPATH/workspace_setup ] || {
     echo_workspace_setup > $GOPATH/workspace_setup
     chmod +x $GOPATH/workspace_setup
