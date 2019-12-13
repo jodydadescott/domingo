@@ -1,0 +1,78 @@
+#!/bin/bash
+
+CONTAINER="jodydadescott/domingo-ubi:latest"
+
+main() {
+  [[ $GOPATH ]] || { err "Please set GOPATH. export GOPATH="; return 2; }
+  export PATH=${GOPATH}/bin:$PATH
+  [ -f $GOPATH/workspace_setup ] || {
+    echo_workspace_setup > $GOPATH/workspace_setup
+    chmod +x $GOPATH/workspace_setup
+  }
+  mkdir -p $GOPATH/src
+  local docker="docker run"
+  docker+=" -v $GOPATH/src:/go/src "
+  [ -f ${HOME}/.gitconfig ] &&  {
+    docker+=" -v ${HOME}/.gitconfig:/root/.gitconfig "
+    local creds=$(git config --global credential.helper | awk '{print $3}')
+    [[ $creds ]] && { 
+      local dname=$(dirname $creds)
+      dname=$(echo $dname)
+      local bcreds=$(basename $creds)
+      dname="${dname//\~/$HOME}"
+      docker+=" -v ${dname}/${bcreds}:/root/${bcreds}"
+    }
+  }
+  docker+=" -it $CONTAINER bash "
+  # err "Running->$docker"
+  $docker
+}
+
+err() { echo "$@" 1>&2; }
+
+echo_workspace_setup()
+{
+cat <<'EOF'
+#!/bin/sh
+
+main() {
+  [[ $GOPATH ]] || { err "Please set GOPATH. export GOPATH="; return 2; }
+  export PATH=${GOPATH}/bin:$PATH
+  goinstall || { err "Install failed"; return 3; }
+}
+
+goget() {
+  cmd go get -u $pkg
+  return $?
+}
+
+cmd() {
+  err "Running->$@"
+  $@
+  local rc=$?
+  [[ $rc -eq 0 ]] || { err "Command $@ failed"; return $rc; }
+}
+
+goinstall() {
+  cmd go get -u  github.com/magefile/mage || return $?
+  cmd go get -u  github.com/golangci/golangci-lint/cmd/golangci-lint || return $?
+  cmd go get -u  github.com/tebeka/go2xunit || return $?
+  cmd go get -u  github.com/smartystreets/goconvey/convey || return $?
+  cmd go get -u  github.com/alecthomas/gometalinter || return $?
+  cmd go get -u  github.com/golang/mock/gomock || return $?
+  cmd go get -u  golang.org/x/lint/golint || return $?
+  cmd go get -u  golang.org/x/tools/cmd/cover || return $?
+  cmd go get -u  golang.org/x/tools/cmd/goimports || return $?
+  cmd go get -u  github.com/golang/dep/cmd/dep || return $?
+  cmd go get -u  github.com/aporeto-inc/go-bindata/... || return $?
+  cmd go get -u golang.org/x/tools/gopls || return $?
+  cmd gometalinter --install
+}
+
+err() { echo "$@" 1>&2; }
+
+main $@
+EOF
+}
+
+main $@

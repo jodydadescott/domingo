@@ -1,0 +1,29 @@
+[centos-base]
+name=CentOS-8 - Base
+baseurl=http://mirror.centos.org/centos/8/BaseOS/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[centos-extras]
+name=CentOS-8 - Server Extras
+baseurl=http://mirror.centos.org/centos/8/extras/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[centos-powertools]
+name=CentOS-8 - Power Tools
+baseurl=http://mirror.centos.org/centos/8/PowerTools/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[centos-appstream]
+name=CentOS-8 - App Stream
+baseurl=http://mirror.centos.org/centos/8/AppStream/x86_64/os/
+enabled=1
+gpgcheck=0
+
+# [centos-updates]
+# name=CentOS-8 - Updates
+# baseurl=http://mirror.centos.org/centos/8/updates/x86_64/os/
+# enabled=1
+# gpgcheck=0
