@@ -15,7 +15,7 @@ main() {
   [ -f ${HOME}/.gitcreds ] && {
     docker+=" -e GITCREDS=$(<${HOME}/.gitcreds)"
   }
-  docker+=" -it $CONTAINER bash "
+  docker+=" -it $CONTAINER bash $@"
   # err "Running->$docker"
   $docker
 }
